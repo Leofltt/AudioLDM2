@@ -21,15 +21,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-f",
-    "--file_path",
-    type=str,
-    required=False,
-    default=None,
-    help="(--mode super_resolution_inpainting): Original audio file for inpainting; Or (--mode generation): the guidance audio file for generating similar audio, DEFAULT None",
-)
-
-parser.add_argument(
 	"--transcription",
 	type=str,
 	required=False,
@@ -126,15 +117,6 @@ parser.add_argument(
 	help="Change this value (any integer number) will lead to a different generation result.",
 )
 
-parser.add_argument(
-    "--mode",
-    type=str,
-    required=False,
-    default="generation",
-    help="{generation,super_resolution_inpainting} generation: text-to-audio generation; super_resolution_inpainting: super resolution inpainting",
-    choices=["generation", "super_resolution_inpainting"]
-)
-
 args = parser.parse_args()
 
 torch.set_float32_matmul_precision("high")
@@ -180,16 +162,16 @@ else:
 	prompt_todo = [text]
 
 for text in prompt_todo:
-	if ("|" in text):
-		text, name = text.split("|")
-	else:
-		name = text[:128]
+    if ("|" in text):
+        text, name = text.split("|")
+    else:
+        name = text[:128]
 
-	if (transcription):
-		name += "-TTS-%s" % transcription
-
-	if(args.mode == "generation"):
-		waveform = text_to_audio(
+    if (transcription):
+        name += "-TTS-%s" % transcription
+        
+    if(args.mode == "generation"):
+        waveform = text_to_audio(
             audioldm2,
             text,
             transcription=transcription, # To avoid the model to ignore the last vocab
@@ -201,10 +183,10 @@ for text in prompt_todo:
             batchsize=args.batchsize,
             latent_t_per_second=latent_t_per_second
         )
-	elif(args.mode == "super_resolution_inpainting"):
-		assert args.file_path is not None
-		assert os.path.exists(args.file_path), "The original audio file \'%s\' for style transfer does not exist." % args.file_path
-		waveform = super_resolution_and_inpainting(
+    elif(args.mode == "super_resolution_inpainting"):
+        assert args.file_path is not None
+        assert os.path.exists(args.file_path), "The original audio file \'%s\' for style transfer does not exist." % args.file_path
+        waveform = super_resolution_and_inpainting(
             latent_diffusion=audioldm2,
             text=text,
             transcription=transcription,
