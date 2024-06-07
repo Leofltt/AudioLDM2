@@ -15,7 +15,7 @@ from audioldm2.latent_diffusion.util import get_vits_phoneme_ids_no_padding
 from audioldm2.utils import default_audioldm_config, download_checkpoint, get_bit_depth, get_duration
 from audioldm2.utilities.audio.stft import TacotronSTFT
 from audioldm2.utilities.audio.tools import wav_to_fbank
-
+from einops import repeat
 import os
 
 # CACHE_DIR = os.getenv(
@@ -48,7 +48,7 @@ def set_cond_text(latent_diffusion):
 
 def set_cond_audio(latent_diffusion):
     latent_diffusion.cond_stage_key = "waveform"
-    latent_diffusion.cond_stage_model.embed_mode="audio"
+    latent_diffusion.clap.embed_mode="audio"
     return latent_diffusion
 
 def extract_kaldi_fbank_feature(waveform, sampling_rate, log_mel_spec):
@@ -269,7 +269,7 @@ def style_transfer(
 
     seed_everything(int(seed))
     latent_diffusion.latent_t_size = int(duration * latent_t_per_second)
-    latent_diffusion.cond_stage_model.embed_mode = "text"
+    latent_diffusion.cond_stage_key = "text"
 
     fn_STFT = TacotronSTFT(
         config["preprocessing"]["stft"]["filter_length"],
@@ -285,8 +285,8 @@ def style_transfer(
         original_audio_file_path, target_length=int(duration * 102.4), fn_STFT=fn_STFT
     )
     mel = mel.unsqueeze(0).unsqueeze(0).to(device)
-    # mel = repeat(mel, "1 ... -> b ...", b=batchsize)
-    mel.unsqueeze(0).repeat(batchsize, 1, 1, 1)
+    mel = repeat(mel, "1 ... -> b ...", b=batchsize)
+    # mel.unsqueeze(0).repeat(batchsize, 1, 1, 1)
     init_latent = latent_diffusion.get_first_stage_encoding(
         latent_diffusion.encode_first_stage(mel)
     )  # move to latent space, encode and sample
@@ -299,11 +299,11 @@ def style_transfer(
     prompts = text
 
     with torch.no_grad():
-        with autocast("cuda"):
+        with autocast(device):
             with latent_diffusion.ema_scope():
                 uc = None
                 if guidance_scale != 1.0:
-                    uc = latent_diffusion.cond_stage_model.get_unconditional_condition(
+                    uc = latent_diffusion.clap.get_unconditional_condition(
                         batchsize
                     )
 

@@ -227,7 +227,6 @@ for text in prompt_todo:
             seed=random_seed,
             duration=duration,
             guidance_scale=guidance_scale,
-            n_candidate_gen_per_text=n_candidate_gen_per_text,
             ddim_steps=args.ddim_steps,
             batchsize=args.batchsize,
             latent_t_per_second=latent_t_per_second

@@ -124,7 +124,7 @@ We currently support 3 devices:
   usage: audioldm2 [-h] [-t TEXT] [-tl TEXT_LIST] [-s SAVE_PATH]
                  [--model_name {audioldm_48k, audioldm_16k_crossattn_t5, audioldm2-full,audioldm2-music-665k,audioldm2-full-large-1150k,audioldm2-speech-ljspeech,audioldm2-speech-gigaspeech}] [-d DEVICE]
                  [-b BATCHSIZE] [--ddim_steps DDIM_STEPS] [-gs GUIDANCE_SCALE] [-n N_CANDIDATE_GEN_PER_TEXT]
-                 [--seed SEED] [--mode {generation,inpainting}] [-f FILE_PATH]
+                 [--seed SEED] [--mode {generation,inpainting}] [-f FILE_PATH] [--transfer_strength TRANSFER_STRENGTH]
 
   optional arguments:
     -h, --help            show this help message and exit
@@ -146,15 +146,19 @@ We currently support 3 devices:
     -b BATCHSIZE, --batchsize BATCHSIZE
                           Generate how many samples at the same time
     --ddim_steps DDIM_STEPS
-    -dur DURATION, --duration DURATION
-                        The duration of the samples
                           The sampling step for DDIM
+    -dur DURATION, --duration DURATION
+                          The duration of the samples
     -gs GUIDANCE_SCALE, --guidance_scale GUIDANCE_SCALE
                           Guidance scale (Large => better quality and relavancy to text; Small => better diversity)
     -n N_CANDIDATE_GEN_PER_TEXT, --n_candidate_gen_per_text N_CANDIDATE_GEN_PER_TEXT
                           Automatic quality control. This number control the number of candidates (e.g., generate three audios and choose the best to show you). A Larger value usually lead to better quality with
                           heavier computation
     --seed SEED           Change this value (any integer number) will lead to a different generation result.
+    --transfer_strength TRANSFER_STRENGTH
+                          A value between 0 and 1. 0 means original audio without transfer, 1 means completely transfer to the audio indicated by text, DEFAULT 0.5
+    -s SAVE_PATH, --save_path SAVE_PATH
+
 ```
 
 ## Hugging Face 🧨 Diffusers
