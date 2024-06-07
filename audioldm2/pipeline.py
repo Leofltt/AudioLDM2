@@ -4,6 +4,7 @@ import re
 import yaml
 import torch
 import torchaudio
+from torch import autocast
 
 import audioldm2.latent_diffusion.modules.phoneme_encoder.text as text
 from audioldm2.utilities.audio import wav_to_fbank, TacotronSTFT
