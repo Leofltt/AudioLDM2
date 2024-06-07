@@ -2,7 +2,7 @@
 import os
 import torch
 import logging
-from audioldm2 import text_to_audio, build_model, save_wave, get_time, read_list, super_resolution_and_inpainting
+from audioldm2 import text_to_audio, build_model, save_wave, get_time, read_list, super_resolution_and_inpainting, style_transfer
 import argparse
 
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
@@ -10,6 +10,15 @@ matplotlib_logger = logging.getLogger('matplotlib')
 matplotlib_logger.setLevel(logging.WARNING)
 
 parser = argparse.ArgumentParser()
+
+parser.add_argument(
+    "--mode",
+    type=str,
+    required=False,
+    default="generation",
+    help="{generation,inpainting, transfer} generation: text-to-audio generation; inpainting: super resolution inpainting; transfer: style transfer",
+    choices=["generation", "inpainting", "transfer"]
+)
 
 parser.add_argument(
 	"-t",
@@ -117,6 +126,14 @@ parser.add_argument(
 	help="Change this value (any integer number) will lead to a different generation result.",
 )
 
+parser.add_argument(
+    "--transfer_strength",
+    type=float,
+    required=False,
+    default=0.5,
+    help="A value between 0 and 1. 0 means original audio without transfer, 1 means completely transfer to the audio indicated by text",
+)
+
 args = parser.parse_args()
 
 torch.set_float32_matmul_precision("high")
@@ -183,14 +200,30 @@ for text in prompt_todo:
             batchsize=args.batchsize,
             latent_t_per_second=latent_t_per_second
         )
-    elif(args.mode == "super_resolution_inpainting"):
+    elif(args.mode == "inpainting"):
         assert args.file_path is not None
-        assert os.path.exists(args.file_path), "The original audio file \'%s\' for style transfer does not exist." % args.file_path
+        assert os.path.exists(args.file_path), "The original audio file \'%s\' for super resolution inpainting does not exist." % args.file_path
         waveform = super_resolution_and_inpainting(
             latent_diffusion=audioldm2,
             text=text,
             transcription=transcription,
             original_audio_file_path=args.file_path,
+            seed=random_seed,
+            duration=duration,
+            guidance_scale=guidance_scale,
+            n_candidate_gen_per_text=n_candidate_gen_per_text,
+            ddim_steps=args.ddim_steps,
+            batchsize=args.batchsize,
+            latent_t_per_second=latent_t_per_second
+        )
+    elif(args.mode == "transfer"):
+        assert args.file_path is not None
+        assert os.path.exists(args.file_path), "The original audio file \'%s\' for style transfer does not exist." % args.file_path
+        waveform = style_transfer(
+            audioldm2,
+            text=text,
+            original_audio_file_path=args.file_path,
+            transfer_strength=args.transfer_strength,
             seed=random_seed,
             duration=duration,
             guidance_scale=guidance_scale,

@@ -7,7 +7,7 @@ This repo currently support Text-to-Audio (including Music), Text-to-Speech Gene
 <hr>
 
 ## Change Log
-
+- 2024-06-07: Add style transfer and super resolution inpainting
 - 2023-08-27: Add two new checkpoints! 
   - 🌟 **48kHz AudioLDM model**: Now we support high-fidelity audio generation! [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/haoheliu/AudioLDM_48K_Text-to-HiFiAudio_Generation)  
   - **16kHz improved AudioLDM model**: Trained with more data and optimized model architecture.
@@ -19,7 +19,7 @@ This repo currently support Text-to-Audio (including Music), Text-to-Speech Gene
 - [x] Support the generation of longer audio (> 10s)
 - [x] Optimizing the inference speed of the model.
 - [x] Integration with the Diffusers library (see [🧨 Diffusers](#hugging-face--diffusers))
-- [ ] Add the style-transfer and inpainting code for the audioldm_48k checkpoint (PR welcomed, same logic as [AudioLDMv1](https://github.com/haoheliu/AudioLDM))
+- [x] Add the style-transfer and inpainting code for the audioldm_48k checkpoint (PR welcomed, same logic as [AudioLDMv1](https://github.com/haoheliu/AudioLDM))
 
 ## Web APP
 
@@ -124,12 +124,12 @@ We currently support 3 devices:
   usage: audioldm2 [-h] [-t TEXT] [-tl TEXT_LIST] [-s SAVE_PATH]
                  [--model_name {audioldm_48k, audioldm_16k_crossattn_t5, audioldm2-full,audioldm2-music-665k,audioldm2-full-large-1150k,audioldm2-speech-ljspeech,audioldm2-speech-gigaspeech}] [-d DEVICE]
                  [-b BATCHSIZE] [--ddim_steps DDIM_STEPS] [-gs GUIDANCE_SCALE] [-n N_CANDIDATE_GEN_PER_TEXT]
-                 [--seed SEED] [--mode {generation,super_resolution_inpainting}] [-f FILE_PATH]
+                 [--seed SEED] [--mode {generation,inpainting}] [-f FILE_PATH]
 
   optional arguments:
     -h, --help            show this help message and exit
-    --mode {generation, super_resolution_inpainting, transfer}
-                        generation: text-to-audio generation; super_resolution_inpainting: super resolution inpainting; transfer: style transfer
+    --mode {generation, inpainting, transfer}
+                        generation: text-to-audio generation; inpainting: super resolution inpainting; transfer: style transfer
     -t TEXT, --text TEXT  Text prompt to the model for audio generation
     -f FILE_PATH, --file_path FILE_PATH
                         (--mode super_resolution_inpainting): Original audio file for inpainting; Or (--mode generation): the guidance audio file for generating similar audio, DEFAULT None
